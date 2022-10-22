@@ -1,19 +1,18 @@
 ## Functions for parsing data files
 
-def read_go_structure():
+def read_go_structure(go_dag):
     '''
     Function for reading GO file in OBO format.
+    go_dag: Networkx DiGraph
     '''
-
     with open("go.obo.txt", "r") as f:
 
         # Skip first section of text - 28 lines + 1 blank
         for i in range(29):
             f.readline()
 
-        # Main loop for reading each term
-        while True:
-            assert(f.readline() == "[Term]\n")
+        # Main loop for reading each term - start by ensuring this is a new term block
+        while f.readline() == "[Term]\n":
 
             # Pick up ID, name, and namespace line arrays
             id = f.readline().split()[1] # Save 2nd element
@@ -36,8 +35,11 @@ def read_go_structure():
             else:
                 namespace = namespace_line[1] # Otherwise, save 2nd element
 
-            # Record
-
-
-        pass
-    pass
+            # Read until end of block, check for "is_a" and "par_of" relationships
+            line = ""
+            while line != "\n":
+                line = f.readline().split()
+                if line[0] == "is_a:":
+                    go_dag.add_edge(id, line[1], relationship="is_a")
+                elif line[1] == "part_of":
+                    go_dag.add_edge(id, line[2], relationship="part_of")
