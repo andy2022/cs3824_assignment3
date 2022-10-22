@@ -1,0 +1,12 @@
+Notes on Assignment 3
+
+Parse the GO structure
+  Focus on is_a and part_of relationships - treat identically
+
+
+Parse the GO annotations file
+  We don't care about publisher ID, so only record each organism entry once
+  Need to decide data structure - will need to be accessed efficiently
+  For any annotation, transfer up the chain
+  networkx package has function for calculating ancestors (smthn like get_ancestors?)
+
