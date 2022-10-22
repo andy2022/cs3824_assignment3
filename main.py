@@ -1,4 +1,6 @@
 ## Main code for running program
 from parsing import read_go_structure
+import networkx as nx
 
-read_go_structure()
+g = nx.DiGraph()
+read_go_structure(g)
