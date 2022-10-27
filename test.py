@@ -20,4 +20,10 @@ class tests(unittest.TestCase):
         self.assertEquals(g.nodes["GO:1"]["name"], "mitochondrion inheritance")
         self.assertEquals(g.number_of_edges(), 3) # Check for 3 edges
 
+    def test_go_annotations(self):
+        '''
+        Test case for smaller annotations parsing function.
+        '''
+        ret = read_go_annotations_test("goa_test.txt")
+
 unittest.main()
