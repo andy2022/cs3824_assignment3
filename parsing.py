@@ -1,11 +1,19 @@
 ## Functions for parsing data files
 
-def read_go_structure(go_dag):
+def read_go_structure(go_dag, fname):
     '''
-    Function for reading GO file in OBO format.
+    Function for reading GO file in OBO format. For each term, the function creates nodes and adds
+    them to an existing networkx DiGraph. All "is_a" and "part_of" relationships are recorded in
+    lists, which are processed after all nodes have been added.
     go_dag: Networkx DiGraph
+    fname: Input OBO file name
     '''
-    with open("go.obo.txt", "r") as f:
+    isa_sources = [] # Empty list for "is_a" relationship sources
+    isa_targets = [] # Empty list for "is_a" relationship targets
+    partof_sources = [] # Empty list for "part_of" relationship sources
+    partof_targets = [] # Empty list for "part_of" relationship targets
+
+    with open(fname, "r") as f:
 
         # Skip first section of text - 28 lines + 1 blank
         for i in range(29):
@@ -35,11 +43,31 @@ def read_go_structure(go_dag):
             else:
                 namespace = namespace_line[1] # Otherwise, save 2nd element
 
-            # Read until end of block, check for "is_a" and "par_of" relationships
-            line = ""
-            while line != "\n":
-                line = f.readline().split()
+            # Add node to graph based on collected data
+            go_dag.add_node(id, name=name, namespace=namespace)
+
+            # Read until end of block, check for "is_a" and "part_of" relationships
+            line = f.readline().split()
+            while line != []:
                 if line[0] == "is_a:":
-                    go_dag.add_edge(id, line[1], relationship="is_a")
+                    # "is_a" relationship - add this node to sources, found node to targets
+                    isa_sources.append(id)
+                    isa_targets.append(line[1])
+                    #go_dag.add_edge(id, line[1], relationship="is_a")
                 elif line[1] == "part_of":
-                    go_dag.add_edge(id, line[2], relationship="part_of")
+                    # "part_of" relationship - add this node to sources, found node to targets
+                    partof_sources.append(id)
+                    partof_targets.append(line[2])
+                    #go_dag.add_edge(id, line[2], relationship="part_of")
+
+                line = f.readline().split()
+
+        # End while loop
+
+    f.close() # Close file
+
+    # Using collected "is_a" and "part_of" lists, generate edges
+    for i in range(len(isa_sources)):
+        go_dag.add_edge(isa_sources[i], isa_targets[i], relationship="is_a")
+    for i in range(len(partof_sources)):
+        go_dag.add_edge(partof_sources[i], partof_targets[i], relationship="part_of")
