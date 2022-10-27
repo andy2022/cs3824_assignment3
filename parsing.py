@@ -1,4 +1,5 @@
 ## Functions for parsing data files
+import gzip
 
 def read_go_structure(go_dag, fname):
     '''
@@ -71,3 +72,44 @@ def read_go_structure(go_dag, fname):
         go_dag.add_edge(isa_sources[i], isa_targets[i], relationship="is_a")
     for i in range(len(partof_sources)):
         go_dag.add_edge(partof_sources[i], partof_targets[i], relationship="part_of")
+
+
+def read_go_annotations_test(fname):
+    '''
+    Test function for reading GO annotations file for an organism. Annotations file
+    normally stored as gz file to save space, but this function uses a small test
+    txt file. Entries are stored as dicts in a dict.
+    DB Object ID (2), Qualifier (4), GO ID (5), Evidence Code (7), Aspect (9)
+    fname: Annotations input file
+    '''
+    ret_dict = {} # Initialize return dictionary
+
+    with open(fname, "r") as f:
+
+        # Skip first section of text - 41 lines
+        for i in range(41):
+            f.readline()
+
+        # Main loop
+        line = "start"
+        while(line != ""):
+            line = f.readline().split()
+
+            # Recover required fields
+            obj_id = line[1]
+            qualifier = line[3]
+            go_id = line[4]
+            evidence_code = line[6]
+            aspect = line[7]
+
+            # Check if qualifier is "NOT" - skip entering in that case
+            if qualifier == "NOT": continue
+
+            # Insert into dict - use GO ID as key
+            dict[go_id] = {
+                "obj_id": obj_id,
+                "qualifier": qualifier,
+                "evidence_code": evidence_code,
+                "aspect": aspect}
+
+    return ret_dict
