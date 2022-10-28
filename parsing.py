@@ -44,13 +44,14 @@ def read_go_structure(go_dag, fname):
             else:
                 namespace = namespace_line[1] # Otherwise, save 2nd element
 
-            # Add node to graph based on collected data
-            go_dag.add_node(id, name=name, namespace=namespace)
-
             # Read until end of block, check for "is_a" and "part_of" relationships
             line = f.readline().split()
+            obsolete_flag = False
             while line != []:
-                if line[0] == "is_a:":
+                if line[0] == "is_obsolete:" and line[1] == "true":
+                    # Obsolete node - not included in graph
+                    obsolete_flag = True
+                elif line[0] == "is_a:":
                     # "is_a" relationship - add this node to sources, found node to targets
                     isa_sources.append(id)
                     isa_targets.append(line[1])
@@ -63,26 +64,30 @@ def read_go_structure(go_dag, fname):
 
                 line = f.readline().split()
 
-        # End while loop
+            # Add node to graph based on collected data (if not obsolete)
+            if not obsolete_flag:
+                go_dag.add_node(id, name=name, namespace=namespace)
 
-    f.close() # Close file
+        # End while loop
 
     # Using collected "is_a" and "part_of" lists, generate edges
     for i in range(len(isa_sources)):
-        go_dag.add_edge(isa_sources[i], isa_targets[i], relationship="is_a")
+        if go_dag.nodes[isa_sources[i]]["namespace"] == go_dag.nodes[isa_targets[i]]["namespace"]:
+            go_dag.add_edge(isa_sources[i], isa_targets[i], relationship="is_a")
     for i in range(len(partof_sources)):
-        go_dag.add_edge(partof_sources[i], partof_targets[i], relationship="part_of")
+        if go_dag.nodes[partof_sources[i]]["namespace"] == go_dag.nodes[partof_targets[i]]["namespace"]:
+            go_dag.add_edge(partof_sources[i], partof_targets[i], relationship="part_of")
 
 
-def read_go_annotations_test(fname):
+def read_go_annotations(fname):
     '''
-    Test function for reading GO annotations file for an organism. Annotations file
-    normally stored as gz file to save space, but this function uses a small test
-    txt file. Entries are stored as dicts in a dict.
+    Function for reading GO annotations file for an organism. GO terms are used as
+    keys. When new GO IDs are added, a dict of lists is created, so each index i
+    corresponds to details of a row.
     DB Object ID (2), Qualifier (4), GO ID (5), Evidence Code (7), Aspect (9)
     fname: Annotations input file
     '''
-    ret_dict = {} # Initialize return dictionary
+    human_annotations = {} # Initialize return dictionary
 
     with open(fname, "r") as f:
 
@@ -91,10 +96,8 @@ def read_go_annotations_test(fname):
             f.readline()
 
         # Main loop
-        line = "start"
-        while(line != ""):
-            line = f.readline().split()
-
+        line = f.readline().split("\t")
+        while(line != [""]):
             # Recover required fields
             obj_id = line[1]
             qualifier = line[3]
@@ -105,11 +108,23 @@ def read_go_annotations_test(fname):
             # Check if qualifier is "NOT" - skip entering in that case
             if qualifier == "NOT": continue
 
-            # Insert into dict - use GO ID as key
-            dict[go_id] = {
-                "obj_id": obj_id,
-                "qualifier": qualifier,
-                "evidence_code": evidence_code,
-                "aspect": aspect}
+            # If current GO ID does not exist as key, make new structure
+            if go_id not in human_annotations:
+                # Add fields as first entries in new lists
+                human_annotations[go_id] = {
+                    "obj_id":[obj_id], "qualifier":[qualifier],
+                    "evidence_code":[evidence_code], "aspect":[aspect]}
+                # Obj id, qualifier, evidence code, aspect
+            # Else, if current GO ID exists, append to the lists
+            else:
+                human_annotations[go_id]["obj_id"].append(obj_id)
+                human_annotations[go_id]["qualifier"].append(qualifier)
+                human_annotations[go_id]["evidence_code"].append(evidence_code)
+                human_annotations[go_id]["aspect"].append(aspect)
 
-    return ret_dict
+            # Get next line
+            line = f.readline().split("\t")
+
+    return human_annotations
+
+
