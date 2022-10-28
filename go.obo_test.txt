@@ -37,8 +37,36 @@ is_a: GO:2 ! organelle inheritance
 is_a: GO:3 ! mitochondrion distribution
 
 [Term]
+id: GO:6
+name: mitochondrial genome maintenance
+namespace: biological_process
+def: "The maintenance of the structure and integrity of the mitochondrial genome; includes replication and segregation of the mitochondrial chromosome." [GOC:ai, GOC:vw]
+is_obsolete: true
+
+[Term]
 id: GO:2
 name: mitochondrial genome maintenance
 namespace: biological_process
 def: "The maintenance of the structure and integrity of the mitochondrial genome; includes replication and segregation of the mitochondrial chromosome." [GOC:ai, GOC:vw]
 relationship: part_of GO:4 ! cytosol
+
+[Term]
+id: GO:3
+name: mitochondrial genome maintenance
+namespace: biological_process
+def: "The maintenance of the structure and integrity of the mitochondrial genome; includes replication and segregation of the mitochondrial chromosome." [GOC:ai, GOC:vw]
+relationship: part_of GO:2 ! cytosol
+
+[Term]
+id: GO:4
+name: mitochondrial genome maintenance
+namespace: other_process
+def: "The maintenance of the structure and integrity of the mitochondrial genome; includes replication and segregation of the mitochondrial chromosome." [GOC:ai, GOC:vw]
+relationship: part_of GO:3 ! cytosol
+
+[Term]
+id: GO:5
+name: mitochondrial genome maintenance
+namespace: biological_process
+def: "The maintenance of the structure and integrity of the mitochondrial genome; includes replication and segregation of the mitochondrial chromosome." [GOC:ai, GOC:vw]
+relationship: part_of GO:3 ! cytosol
