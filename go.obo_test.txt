@@ -60,7 +60,7 @@ relationship: part_of GO:2 ! cytosol
 [Term]
 id: GO:4
 name: mitochondrial genome maintenance
-namespace: other_process
+namespace: cellular_component
 def: "The maintenance of the structure and integrity of the mitochondrial genome; includes replication and segregation of the mitochondrial chromosome." [GOC:ai, GOC:vw]
 relationship: part_of GO:3 ! cytosol
 
