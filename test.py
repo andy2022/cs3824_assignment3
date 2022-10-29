@@ -45,4 +45,15 @@ class tests(unittest.TestCase):
         self.assertEqual(ancestors.number_of_nodes(), 0)
         self.assertEqual(ancestors.number_of_edges(), 0)
 
+    def test_get_root(self):
+        g = nx.DiGraph()
+        read_go_structure(g, "go.obo_test.txt")
+
+        root = get_root(g, "bp") # Expected 1
+        self.assertEqual(root, "GO:1")
+
+        wrong = get_root(g, "mf") # No mf nodes - should return empty string
+        self.assertEqual(wrong, "")
+
+
 unittest.main()
