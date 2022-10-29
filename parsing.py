@@ -103,7 +103,7 @@ def read_go_annotations(fname):
             qualifier = line[3]
             go_id = line[4]
             evidence_code = line[6]
-            aspect = line[7]
+            aspect = line[8]
 
             # Check if qualifier is "NOT" - skip entering in that case
             if qualifier == "NOT": continue
